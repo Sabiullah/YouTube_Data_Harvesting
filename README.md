@@ -83,4 +83,3 @@ Names_all_Videos["Comments"] = pd.to_numeric(Names_all_Videos["Comments"], error
 sorted_df = Names_all_Videos.sort_values(by="Comments", ascending=False)
 top_videos = sorted_df.head()
 st.table(top_videos[["Title", "Channel_Name", "Comments"]])
-
