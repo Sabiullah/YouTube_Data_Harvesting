@@ -1,85 +1,99 @@
+# YouTube Data Harvesting and Warehousing 
 
-import pymongo
+**Introduction**
 
-mongodb_uri = "mongodb+srv://Safy:1234@cluster0.4w8kary.mongodb.net/"  # Replace with your MongoDB Atlas URI
+YouTube Data Harvesting and Warehousing is a project aimed at developing a user-friendly Streamlit application that leverages the power of the Google API to extract valuable information from YouTube channels. The extracted data is then stored in a MongoDB database, subsequently migrated to a SQL data warehouse, and made accessible for analysis and exploration within the Streamlit app.
 
-client = pymongo.MongoClient(mongodb_uri)
+**Table of Contents**
 
-# Access the database and collection
-db = client['YouTube']
-collection = db['VideoData10']
+1. Key Technologies and Skills
+2. Installation
+3. Usage
+4. Features
+5. Retrieving data from the YouTube API
+6. Storing data in MongoDB
+7. Migrating data to a SQL data warehouse
+8. Data Analysis
+9. Contributing
+10. License
+11. Contact
 
-import pandas as pd
+**Key Technologies and Skills**
+- Python scripting
+- Data Collection
+- API integration
+- Streamlit
+- Plotly
+- Data Management using MongoDB (Atlas) and SQL
 
-# Query data from MongoDB and convert to DataFrame
-data = list(collection.find())
-df = pd.DataFrame(data)
-Names_all_Videos = df[["Title", "Channel_Name", "Comments"]]
+**Installation**
 
-import streamlit as st
+To run this project, you need to install the following packages:
+```python
+pip install google-api-python-client
+pip install pymongo
+pip install pandas
+pip install psycopg2
+pip install streamlit
+pip install plotly
+```
 
-# Load data from MongoDB
+**Usage**
 
-def load_data():    
-    return Names_all_Videos
+To use this project, follow these steps:
 
-# Create a Streamlit app
-st.title('YouTube Data Harvesting and Warehousing ')
-st.markdown("---")
-st.header('What are the names of all the videos and their correspondig channels?')
-All_videos = load_data()
-st.write(All_videos)
+1. Clone the repository: ```git clone https://github.com/Sabiullah/YouTube_Data_Harvesting.git```
+2. Install the required packages: ```pip install -r requirements.txt```
+3. Run the Streamlit app: ```streamlit run YT10.py```
+4. Access the app in your browser at ```http://localhost:8501```
 
-st.header("Which channels have the most number of videos, and how many videos do they have?")
-channel_counts = df['Channel_Name'].value_counts()
-max_channel = channel_counts.idxmax()
-max_videos_count = channel_counts.max()
-st.write(f"The channel '{max_channel}' has the maximum number of videos: {max_videos_count}")
+**Features**
 
-st.header('Top 10 Most Viewed Videos and Their Respective Channels')
-df['Views'] = pd.to_numeric(df['Views'], errors='coerce')
-df = df.dropna(subset=['Views'])
-df = df.drop_duplicates(subset=['Title', 'Channel_Name'])
-df_sorted = df.sort_values(by='Views', ascending=False)
-top_10_videos = df_sorted.head(10)
-st.write(top_10_videos[['Title', 'Channel_Name', 'Views']])
+- Retrieve data from the YouTube API, including channel information, playlists, videos, and comments.
+- Store the retrieved data in a MongoDB database.
+- Migrate the data to a SQL data warehouse.
+- Analyze and visualize data using Streamlit and Plotly.
+- Perform queries on the SQL data warehouse.
+- Gain insights into channel performance, video metrics, and more.
 
-st.header('Number of Comments for Each Video and Their Respective Titles')
-df['Comments'] = pd.to_numeric(df['Comments'], errors='coerce')
-df = df.dropna(subset=['Comments'])
-comments_per_video = df.groupby('Title')['Comments'].sum().reset_index()
-st.write(comments_per_video)
+**Retrieving data from the YouTube API**
 
-st.header('Videos with the Highest Number of Likes and Their Respective Channel Names')
-df['Likes'] = pd.to_numeric(df['Likes'], errors='coerce')
-df = df.dropna(subset=['Likes'])
-df = df.drop_duplicates(subset=['Title', 'Channel_Name'])
-df_sorted_likes = df.sort_values(by='Likes', ascending=False)
-top_videos_likes = df_sorted_likes.head(10)
-st.write(top_videos_likes[['Title', 'Channel_Name', 'Likes']])
+The project utilizes the Google API to retrieve comprehensive data from YouTube channels. The data includes information on channels, playlists, videos, and comments. By interacting with the Google API, we collect the data and merge it into a JSON file.
 
-st.header('Total Likes and Dislikes for Each Video and Their Respective Titles')
-df['Likes'] = pd.to_numeric(df['Likes'], errors='coerce')
-df['Dislikes'] = pd.to_numeric(df['Dislikes'], errors='coerce')
-df = df.dropna(subset=['Likes', 'Dislikes'])
-likes_dislikes_per_video = df.groupby('Title')[['Likes', 'Dislikes']].sum().reset_index()
-st.write(likes_dislikes_per_video)
+**Storing data in MongoDB**
 
-st.header('Total number of views for each Channel and Their Corresponding Channel Names')
-df['Views'] = pd.to_numeric(df['Views'], errors='coerce')
-df = df.dropna(subset=['Views'])
-views_per_channel = df.groupby('Channel_Name')['Views'].sum().reset_index()
-st.write(views_per_channel[['Channel_Name', 'Views']])
+The retrieved data is stored in a MongoDB database based on user authorization. If the data already exists in the database, it can be overwritten with user consent. This storage process ensures efficient data management and preservation, allowing for seamless handling of the collected data.
 
+**Migrating data to a SQL data warehouse**
 
-st.header('Channels that Published Videos in the Year 2022')
-df['Publish_Dt'] = pd.to_datetime(df['Publish_Dt'], errors='coerce')
-channels_2022 = df[df['Publish_Dt'].dt.year == 2022]
-unique_channels_2022 = channels_2022['Channel_Name'].unique()
-st.write(unique_channels_2022)
+The application allows users to migrate data from MongoDB to a SQL data warehouse. Users can choose which channel's data to migrate. To ensure compatibility with a structured format, the data is cleansed using the powerful pandas library. Following data cleaning, the information is segregated into separate tables, including channels, playlists, videos, and comments, utilizing SQL queries.
 
-st.header('Videos that have highest number of comments and the corresponding Channels')
-Names_all_Videos["Comments"] = pd.to_numeric(Names_all_Videos["Comments"], errors='coerce')
-sorted_df = Names_all_Videos.sort_values(by="Comments", ascending=False)
-top_videos = sorted_df.head()
-st.table(top_videos[["Title", "Channel_Name", "Comments"]])
+**Data Analysis**
+
+The project provides comprehensive data analysis capabilities using Plotly and Streamlit. With the integrated Plotly library, users can create interactive and visually appealing charts and graphs to gain insights from the collected data.
+
+- **Channel Analysis:** Channel analysis includes insights on playlists, videos, subscribers, views, likes, comments, and durations. Gain a deep understanding of the channel's performance and audience engagement through detailed visualizations and summaries.
+
+- **Video Analysis:** Video analysis focuses on views, likes, comments, and durations, enabling both an overall channel and specific channel perspectives. Leverage visual representations and metrics to extract valuable insights from individual videos.
+
+Utilizing the power of Plotly, users can create various types of charts, including line charts, bar charts, scatter plots, pie charts, and more. These visualizations enhance the understanding of the data and make it easier to identify patterns, trends, and correlations.
+
+The Streamlit app provides an intuitive interface to interact with the charts and explore the data visually. Users can customize the visualizations, filter data, and zoom in or out to focus on specific aspects of the analysis.
+
+With the combined capabilities of Plotly and Streamlit, the Data Analysis section empowers users to uncover valuable insights and make data-driven decisions.
+
+**Contributing**
+
+Contributions to this project are welcome! If you encounter any issues or have suggestions for improvements, please feel free to submit a pull request.
+
+**License**
+
+This project is licensed under the MIT License. Please review the LICENSE file for more details.
+
+**Contact**
+
+📧 Email: safycosting@gmail.com
+
+🌐 LinkedIn: https://www.linkedin.com/in/sabiullah-noor-mohamed-83507386/
+
+For any further questions or inquiries, feel free to reach out. We are happy to assist you with any queries.
